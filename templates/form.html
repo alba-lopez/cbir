@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>CDIR</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <style>
+        html {
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            font-size: 17px;
+        }
+        body {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form__fieldset {
+            padding: 40px 20px
+        }
+        .form__fieldset:not(:last-of-type) {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .form__file {
+            padding: 8px 16px;
+            background-color: unset;
+        }
+        #slide {
+            width: auto;
+            height: 100px;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bienvenidos a CDIR :)</h1>
+    <div class="form__fieldset">
+        <label class="form__label" for="image">Busca una imagen: </label>
+        <input class="form__file" name="image" type="file" accept="image/jpeg">
+    </div>
+
+    <div class="form__fieldset" id="slide">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+        <img src="http://placehold.it/100x100">
+    </div>
+</body>
+
+</html>

@@ -1,1 +1,3 @@
-# cbir
+# Para ejecutar: 
+
+>> python app.py
