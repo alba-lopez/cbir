@@ -14,44 +14,74 @@
             margin: 0 auto;
             padding: 20px;
         }
+        .row {
+            box-sizing: border-box;
+        }
+        .column {
+            float: left;
+            padding: 40px 20px;
+        }
         .form__fieldset {
-            padding: 40px 20px
+            padding: 40px 20px;
         }
         .form__fieldset:not(:last-of-type) {
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .left {
+            width: 50%;
+        }
+        .right {
+            width: 50%;
         }
         .form__file {
             padding: 8px 16px;
             background-color: unset;
         }
-        #slide {
-            width: auto;
-            height: 100px;
-            overflow-x: scroll;
-            overflow-y: hidden;
-            white-space: nowrap;
+        #image-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .image-item {
+            flex: 0 0 calc(33.33% - 10px); /* 3 images per row with spacing: no va */
+            margin: 5px;
+            box-sizing: border-box;
+        }
+        #scroll_container {
+            max-height: 400px;
+            width: 100px;
+            overflow-y: scroll;
+            margin: 0 auto; /* centrar: no va */
         }
     </style>
 </head>
 
 <body>
     <h1>Bienvenidos a CDIR :)</h1>
-    <div class="form__fieldset">
-        <label class="form__label" for="image">Busca una imagen: </label>
-        <input class="form__file" name="image" type="file" accept="image/jpeg">
-    </div>
+    <div class="row">
+        <div class="column left">
+            <div class="form__fieldset">
+                <label class="form__label" for="image">Busca una imagen: </label>
+                <input class="form__file" name="image" type="file" accept="image/jpeg">
+            </div>
+            <div class="form__fieldset">
+                <img class="image_item" src="http://placehold.it/100x100">
+            </div>
+        </div>
 
-    <div class="form__fieldset" id="slide">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
-        <img src="http://placehold.it/100x100">
+        <div class="column right" id="scroll_container">
+            <div id="image_container">
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+                <div><img class="image_item" src="http://placehold.it/100x100"></div>
+            </div>
+        </div>
     </div>
 </body>
 
