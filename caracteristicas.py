@@ -1,6 +1,10 @@
 import numpy as np
 import cv2
 
+def caract_en_uso(img: str) -> np.array:
+    h = histograma_byn(img, 255) #cambiar: función de características a usar
+    return h
+
 def histograma_byn(img, bins):
     h, b = np.histogram(img, bins)
     return h
