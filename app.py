@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from typing import List
 import cv2
 import numpy as np
+import json
 
 from caracteristicas import caract_en_uso
 from distancia import dist_en_uso
@@ -60,14 +61,13 @@ def buscar_similares(img: str) -> List[str]:
     """Recibe una imagen, calcula sus características, y busca imágenes similares en la BD en base a sus características"""
     caract_new = calcular_caract(img)
     tupla = []
-    imgs = Imagen.query.select() #### corregir
+    imgs = Imagen.query.all() 
     for i in imgs:
         nombre = i.nombre
-        d = dist_en_uso(caract_new, i.caract)
+        d = dist_en_uso(caract_new, np.array(json.loads(i.caract)))
         tupla += [(nombre, d)]
     tupla_ordenada = sorted(tupla, reverse= True, key=take_first)
-    print(tupla_ordenada)
-
+    return [t[0] for t in tupla_ordenada]
 
 @app.route('/')
 def index():
@@ -84,7 +84,11 @@ def nuevas_imags():
 @app.route('/buscar/')
 def buscar_imags():
     img = "templates\static\pug.jpeg"
-    buscar_similares(img)
+    imgs = buscar_similares(img)
+    blobs = [leer_img(i) for i in imgs]
+    print(len(blobs))
+    print(blobs)
+    return render_template('form.html', imgs = blobs)
 
 if __name__ == '__main__':
     app.run(debug = True)

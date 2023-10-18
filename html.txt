@@ -1,0 +1,5 @@
+<img src="{{ path_foto }}" alt="foto_perfil_{{ usuario.nombre_usuario }}">
+
+{% for img in imgs %}
+                    <div><img class="image_item" src="{{ img }}"></div>
+                {% endfor %}
