@@ -3,3 +3,5 @@
 {% for img in imgs %}
                     <div><img class="image_item" src="{{ img }}"></div>
                 {% endfor %}
+
+url_for('static', filename='static/palmera.jpg')
