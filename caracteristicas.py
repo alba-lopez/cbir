@@ -1,28 +1,44 @@
 import numpy as np
 import cv2
+from distancia import *
 
-def caract_en_uso(img: str, metodo: str) -> np.array:
+def caract_en_uso(filename: str, metodo: str) -> np.array:
     if metodo == 'histograma':
-        h = histograma_rgb(img, 255)
+        carac = histograma_rgb(filename, 255)
     elif metodo == 'sift':
-        h = sift(img)
+        carac = sift(filename)
     elif metodo == 'cnn':
-        h = cnn(img)
-    return h
+        carac = cnn(filename)
+    return carac
 
-def histograma_byn(img, bins):
-    h, b = np.histogram(img, bins)
-    return h
+def histograma_byn(img_path, bins):
+    img = cv2.imread(img_path)
+    hist, _ = np.histogram(img, bins)
+    return hist
 
-def histograma_rgb(img, bins):
-    red, b = np.histogram(img[:,:,0], bins)
-    green, b = np.histogram(img[:,:,1], bins)
-    blue, b  = np.histogram(img[:,:,2], bins)
-    h = np.array([red, green, blue])
-    return h
+def histograma_rgb(img_path, bins):
+    img = cv2.imread(img_path)
+    
+    red, _ = np.histogram(img[:,:,0], bins)
+    green, _ = np.histogram(img[:,:,1], bins)
+    blue, _  = np.histogram(img[:,:,2], bins)
+    
+    hist = np.array([red, green, blue])
+    return hist
 
-def sift(img):
-    pass
+def sift(img_path):
+    img = cv2.imread(img_path)
+
+    # Transformar imagen de BGR a escala de grises
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Inicializar SIFT
+    sift = cv2.SIFT_create()
+
+    # Encontrar los puntos clave en la imagen
+    _ , descriptors = sift.detectAndCompute(gray, mask=None)
+
+    return descriptors
 
 def cnn(img):
     pass
