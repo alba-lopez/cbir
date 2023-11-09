@@ -2,14 +2,13 @@
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from typing import List
-import cv2
 import numpy as np
 import json
 from werkzeug.utils import secure_filename
 import os
 
 from caracteristicas import caract_en_uso
-from distancia import dist_en_uso
+from distancia import *
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///imgs.db'
@@ -23,22 +22,11 @@ class Imagen(db.Model):
     nombre = db.Column(db.String, unique = True, nullable = False)
     foto = db.Column(db.BLOB())
     caract = db.Column(db.String)
-    #caract_sift = db.Column(db.String)
+    caract_sift = db.Column(db.String)
     #caract_cnn = db.Column(db.String)
 
 with app.app_context():
     db.create_all()
-
-def leer_img(filename: str) -> np.array:
-    """Recibe la ubi de una imagen y devuelve sus componentes BGR"""
-    img = cv2.imread(filename, cv2.IMREAD_COLOR)
-    return img
-
-def calcular_caract(filename: str, metodo: str) -> np.array:
-    """Recibe la ubi de una imagen y devuelve su vector de características"""
-    img = leer_img(filename)
-    caract = caract_en_uso(img, metodo) #funcion para calcular vector
-    return caract
 
 def file_to_binary(filename: str):
     """Recibe la ubi de una imagen y devuelve su contenido en binario"""
@@ -48,36 +36,40 @@ def file_to_binary(filename: str):
 
 def subir_imag(filename: str) -> None:  
     """Recibe el nombre de una imagen, calcula sus características, y las almacena en la BD"""
-    n = Imagen.query.filter_by(nombre = filename).first() #comprobamos que no haya ninguna img con mismo nombre
-    if not n:
+    img_consulta = Imagen.query.filter_by(nombre = filename).first() #comprobamos que no haya ninguna img con mismo nombre
+    if not img_consulta:
         path = os.path.join('static', filename)
-        print(path)
         blob = file_to_binary(path)
-        hist = repr(calcular_caract(path, 'histograma').tolist())
-        img = Imagen(nombre = filename, foto = blob, caract = hist)
+        hist = repr(caract_en_uso(path, 'histograma').tolist())
+        sift = repr(caract_en_uso(path, 'sift').tolist())
+        img = Imagen(nombre = filename, foto = blob, caract = hist, caract_sift = sift)
         db.session.add(img)
         db.session.commit()
         print("Added!")
     else: 
         print("La imagen ya está almacenada")
 
-def take_first(elem):
-    return elem[0]
-
 def buscar_similares(filename: str, metodo: str) -> List[str]:
     """Recibe el nombre de una imagen, calcula sus características, y busca imágenes similares en la BD en base a sus características"""
-    path = os.path.join('static', filename)
-    caract_new = calcular_caract(path, metodo)
-    tupla = []
+    query_img_path = os.path.join('static', filename)
+    query_descriptors = np.float32(caract_en_uso(query_img_path, metodo))
+    imgs_similares = []
     imgs = Imagen.query.all() 
-    for i in imgs:
-        nombre = i.nombre
-        if i.nombre != filename:
-            d = dist_en_uso(caract_new, np.array(json.loads(i.caract)))
-            tupla += [(nombre, d)]
-    tupla_ordenada = sorted(tupla, reverse= True, key=take_first)
-    print(tupla_ordenada)
-    return [t[0] for t in tupla_ordenada]
+    for img in imgs:
+        if img.nombre != filename:
+            if metodo == 'histograma':
+                dist = euclidea(query_descriptors, np.array(json.loads(img.caract)))
+                imgs_similares += [(img.nombre, dist)]
+            elif metodo == 'sift':
+                img_descriptors = np.float32(json.loads(img.caract_sift))
+                similarity_score = sift_similarity_score(img_descriptors, query_descriptors, 0.5)
+                imgs_similares.append((img.nombre, similarity_score))
+    if metodo == 'histograma':                   
+        imgs_similares_ordenada = sorted(imgs_similares, key=lambda x: x[1])
+    elif metodo == 'sift':
+        imgs_similares_ordenada = sorted(imgs_similares, key=lambda x: x[1], reverse=True) 
+
+    return [t[0] for t in imgs_similares_ordenada]
 
 @app.route('/')
 def index():
