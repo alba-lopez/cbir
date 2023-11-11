@@ -8,7 +8,7 @@ cbir/
 
     
     instance/
-        imgs.db : BD de características
+        imgs.db : BD de características (pesa demasiado, y no está en GitHub. Se genera como se menciona en 1., o se puede descargar generada)
         
     static/ : BD de imágenes WangDataSet
 
