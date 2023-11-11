@@ -2,8 +2,7 @@
 <html lang="es">
 
 <head>
-    <title>CDIR</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <title>CBIR</title>
     <style>
         html {
             font-family: "Segoe UI", Arial, Helvetica, sans-serif;
@@ -69,7 +68,7 @@
 </head>
 
 <body>
-    <h1>Bienvenidos a CDIR :)</h1>
+    <h1>Bienvenidos a CBIR :)</h1>
     <div class="row">
         <div class="column left">
             <form method="post" action="\" enctype="multipart/form-data">
@@ -84,9 +83,11 @@
                     <p class="form__file">
                         <select name="metodo" id="metodo" required>
                             <option value="sel" disabled selected>Selecciona la métrica</option>
-                            <option value="histograma">Histograma</option>
+                            <option value="histograma_rgb">Histograma RGB</option>
+                            <option value="histograma_lab">Histograma LAB</option>
                             <option value="sift">SIFT</option>
-                            <option value="cnn">CNN</option>
+                            <option value="cnn_pool5">CNN (Pool5)</option>
+                            <option value="cnn_fc2">CNN FC2</option>
                         </select>
                     </p>
                 </dl>
