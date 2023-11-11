@@ -60,6 +60,8 @@ def subir_imag(filename: str, model_pool5, model_fc2) -> None:
 
 def buscar_similares(filename: str, metodo: str) -> List[str]:
     """Recibe el nombre de una imagen, calcula sus características, y busca imágenes similares en la BD en base a sus características"""
+    print('Comparando con ' + str(metodo))
+    
     query_img_path = os.path.join('static', filename)
 
     model = None
@@ -76,24 +78,24 @@ def buscar_similares(filename: str, metodo: str) -> List[str]:
     for img in imgs:
         if img.nombre != filename:
             if metodo == 'histograma_rgb':
-                print('Comparando con histograma RGB')
+                #print('Comparando con histograma RGB')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_rgb)))
                 imgs_similares += [(img.nombre, dist)]
             elif metodo == 'histograma_lab':
-                print('Comparando con histograma LAB')
+                #print('Comparando con histograma LAB')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_lab)))
                 imgs_similares += [(img.nombre, dist)]
             elif metodo == 'sift':
-                print('Comparando con SIFT')
+                #print('Comparando con SIFT')
                 img_descriptors = np.float32(json.loads(img.caract_sift))
                 similarity_score = sift_similarity_score(img_descriptors, query_descriptors, 0.5)
                 imgs_similares.append((img.nombre, similarity_score))
             elif metodo == 'cnn_pool5':
-                print('Comparando con la capa Pool5 de CNN')
+                #print('Comparando con la capa Pool5 de CNN')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_pool5)))
                 imgs_similares += [(img.nombre, dist)]
             elif metodo == 'cnn_fc2':
-                print('Comparando con la capa FC2 de CNN')
+                #print('Comparando con la capa FC2 de CNN')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_fc2)))
                 imgs_similares += [(img.nombre, dist)]
     
@@ -122,7 +124,7 @@ def upload_imag():
         if 'metodo' in request.form:
             metodo = request.form['metodo']
             if metodo in ['histograma_rgb', 'histograma_lab', 'sift', 'cnn_pool5', 'cnn_fc2']:
-                imgs = buscar_similares(filename, metodo)[:10]
+                imgs = buscar_similares(filename, metodo)[:20]
                 return render_template('form.html', filename = filename, imgs = imgs)
         return render_template('form.html', filename = filename)
 

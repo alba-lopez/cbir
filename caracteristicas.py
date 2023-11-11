@@ -4,9 +4,9 @@ from distancia import *
 
 def caract_en_uso(filename: str, metodo: str, model = None) -> np.array:
     if metodo == 'histograma_rgb':
-        carac = histograma_rgb(filename, 8)
+        carac = histograma_rgb(filename)
     elif metodo == 'histograma_lab':
-        carac = histograma_lab(filename, 8)
+        carac = histograma_lab(filename)
     elif metodo == 'sift':
         carac = sift(filename)
     elif metodo == 'cnn_pool5' or metodo == 'cnn_fc2':
@@ -14,7 +14,7 @@ def caract_en_uso(filename: str, metodo: str, model = None) -> np.array:
     return carac
 
 
-def histograma_rgb(img_path, bins):
+def histograma_rgb2(img_path, bins = 255):
     img = cv2.imread(img_path)
     
     red, _ = np.histogram(img[:,:,0], bins)
@@ -25,7 +25,7 @@ def histograma_rgb(img_path, bins):
     return hist
 
 
-def histograma_rgb2(filename, bins, mask=None):
+def histograma_rgb(filename, bins = 8, mask=None):
     img = cv2.imread(filename, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convierte la imagen a espacio RGB
     histogram = cv2.calcHist([img], [0, 1, 2], mask, [bins, bins, bins], [0, 256, 0, 256, 0, 256])
@@ -33,7 +33,7 @@ def histograma_rgb2(filename, bins, mask=None):
     return histogram
 
 
-def histograma_lab(img_path, bins):
+def histograma_lab2(img_path, bins = 255):
     img = cv2.imread(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     
@@ -45,7 +45,7 @@ def histograma_lab(img_path, bins):
     return hist
 
 
-def histograma_lab2(filename, bins, mask=None):
+def histograma_lab(filename, bins = 8, mask=None):
     img = cv2.imread(filename, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)  # Convierte la imagen a espacio L*a*b*.
     histogram = cv2.calcHist([img], [0, 1, 2], mask, [bins, bins, bins], [0, 256, 0, 256, 0, 256])
