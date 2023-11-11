@@ -4,9 +4,9 @@ from distancia import *
 
 def caract_en_uso(filename: str, metodo: str, model = None) -> np.array:
     if metodo == 'histograma_rgb':
-        carac = histograma_rgb(filename, 255)
+        carac = histograma_rgb(filename, 8)
     elif metodo == 'histograma_lab':
-        carac = histograma_lab(filename, 255)
+        carac = histograma_lab(filename, 8)
     elif metodo == 'sift':
         carac = sift(filename)
     elif metodo == 'cnn_pool5' or metodo == 'cnn_fc2':
@@ -14,8 +14,18 @@ def caract_en_uso(filename: str, metodo: str, model = None) -> np.array:
     return carac
 
 
-def histograma_rgb(filename, bins, mask=None):
-    print('Comparando con histograma RGB')
+def histograma_rgb(img_path, bins):
+    img = cv2.imread(img_path)
+    
+    red, _ = np.histogram(img[:,:,0], bins)
+    green, _ = np.histogram(img[:,:,1], bins)
+    blue, _  = np.histogram(img[:,:,2], bins)
+    
+    hist = np.array([red, green, blue])
+    return hist
+
+
+def histograma_rgb2(filename, bins, mask=None):
     img = cv2.imread(filename, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convierte la imagen a espacio RGB
     histogram = cv2.calcHist([img], [0, 1, 2], mask, [bins, bins, bins], [0, 256, 0, 256, 0, 256])
@@ -23,8 +33,19 @@ def histograma_rgb(filename, bins, mask=None):
     return histogram
 
 
-def histograma_lab(filename, bins, mask=None):
-    print('Comparando con histograma LAB')
+def histograma_lab(img_path, bins):
+    img = cv2.imread(img_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    
+    l, _ = np.histogram(img[:,:,0], bins)
+    a, _ = np.histogram(img[:,:,1], bins)
+    b, _  = np.histogram(img[:,:,2], bins)
+    
+    hist = np.array([l, a, b])
+    return hist
+
+
+def histograma_lab2(filename, bins, mask=None):
     img = cv2.imread(filename, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)  # Convierte la imagen a espacio L*a*b*.
     histogram = cv2.calcHist([img], [0, 1, 2], mask, [bins, bins, bins], [0, 256, 0, 256, 0, 256])
@@ -33,7 +54,6 @@ def histograma_lab(filename, bins, mask=None):
 
 
 def sift(img_path):
-    print('Comparando con SIFT')
     img = cv2.imread(img_path)
     # Transformar imagen de BGR a escala de grises
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -45,7 +65,6 @@ def sift(img_path):
 
 
 def cnn(filename: str, model) -> np.array:
-    print('Comparando con CNN')
     img = cv2.imread(filename)
     # Redimensionar la imagen a 224x224 píxeles
     img = cv2.resize(img, (224, 224))

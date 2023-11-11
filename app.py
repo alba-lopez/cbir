@@ -8,6 +8,8 @@ from werkzeug.utils import secure_filename
 import os
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications import VGG16
+import pandas as pd
+from sklearn import neighbors
 
 from caracteristicas import caract_en_uso
 from distancia import *
@@ -15,7 +17,7 @@ from distancia import *
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///imgs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.static_folder = 'static2'
+app.static_folder = 'static'
 
 db = SQLAlchemy(app)
 
@@ -42,7 +44,7 @@ def subir_imag(filename: str, model_pool5, model_fc2) -> None:
     """Recibe el nombre de una imagen, calcula sus características, y las almacena en la BD"""
     img_consulta = Imagen.query.filter_by(nombre = filename).first() #comprobamos que no haya ninguna img con mismo nombre
     if not img_consulta:
-        path = os.path.join('static2', filename)
+        path = os.path.join('static', filename)
         blob = file_to_binary(path)
         hist_rgb = repr(caract_en_uso(path, 'histograma_rgb').tolist())
         hist_lab = repr(caract_en_uso(path, 'histograma_lab').tolist())
@@ -58,7 +60,7 @@ def subir_imag(filename: str, model_pool5, model_fc2) -> None:
 
 def buscar_similares(filename: str, metodo: str) -> List[str]:
     """Recibe el nombre de una imagen, calcula sus características, y busca imágenes similares en la BD en base a sus características"""
-    query_img_path = os.path.join('static2', filename)
+    query_img_path = os.path.join('static', filename)
 
     model = None
     if metodo == 'cnn_pool5':
@@ -74,19 +76,24 @@ def buscar_similares(filename: str, metodo: str) -> List[str]:
     for img in imgs:
         if img.nombre != filename:
             if metodo == 'histograma_rgb':
+                print('Comparando con histograma RGB')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_rgb)))
                 imgs_similares += [(img.nombre, dist)]
-            if metodo == 'histograma_lab':
+            elif metodo == 'histograma_lab':
+                print('Comparando con histograma LAB')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_lab)))
                 imgs_similares += [(img.nombre, dist)]
             elif metodo == 'sift':
+                print('Comparando con SIFT')
                 img_descriptors = np.float32(json.loads(img.caract_sift))
                 similarity_score = sift_similarity_score(img_descriptors, query_descriptors, 0.5)
                 imgs_similares.append((img.nombre, similarity_score))
-            if metodo == 'cnn_pool5':
+            elif metodo == 'cnn_pool5':
+                print('Comparando con la capa Pool5 de CNN')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_pool5)))
                 imgs_similares += [(img.nombre, dist)]
-            if metodo == 'cnn_fc2':
+            elif metodo == 'cnn_fc2':
+                print('Comparando con la capa FC2 de CNN')
                 dist = euclidea(query_descriptors, np.array(json.loads(img.caract_fc2)))
                 imgs_similares += [(img.nombre, dist)]
     
@@ -96,6 +103,7 @@ def buscar_similares(filename: str, metodo: str) -> List[str]:
         imgs_similares_ordenada = sorted(imgs_similares, key=lambda x: x[1], reverse=True) 
 
     return [t[0] for t in imgs_similares_ordenada]
+
 
 @app.route('/')
 def index():
@@ -114,14 +122,14 @@ def upload_imag():
         if 'metodo' in request.form:
             metodo = request.form['metodo']
             if metodo in ['histograma_rgb', 'histograma_lab', 'sift', 'cnn_pool5', 'cnn_fc2']:
-                imgs = buscar_similares(filename, metodo)[:20]
+                imgs = buscar_similares(filename, metodo)[:10]
                 return render_template('form.html', filename = filename, imgs = imgs)
         return render_template('form.html', filename = filename)
 
 @app.route('/display/<filename>')
 def display_imag(filename):
     #return redirect(url_for('static', filename= filename), code=301)
-    return send_from_directory('static2', filename)
+    return send_from_directory('static', filename)
 
 @app.route('/nueva/')
 def nuevas_imags():
@@ -132,9 +140,9 @@ def nuevas_imags():
     base_model = VGG16(weights='imagenet', include_top=True)
     model_fc2 = Model(inputs=base_model.input, outputs=base_model.get_layer('fc2').output)
     
-    contenido = os.listdir('static2')
+    contenido = os.listdir('static')
     for i in contenido:
-        if os.path.isfile(os.path.join('static2', i)):
+        if os.path.isfile(os.path.join('static', i)):
             subir_imag(i, model_pool5, model_fc2)
     return "Up to date"
 
